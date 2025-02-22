@@ -28,7 +28,7 @@ def human_like_typing(text, wpm=5500):
         return
 
     for char in text:
-        if keyboard.is_pressed('*'):
+        if keyboard.is_pressed('insert'):
             print("\nTyping stopped by user.")
             return
 
