@@ -8,7 +8,7 @@ import requests
 
 load_dotenv()
 pastebin_api_key = os.getenv("PASTEBIN_API_KEY")
-pastebin_url = "https://pastebin.com/DTJXGTNy"
+pastebin_url = "https://pastebin.com/RdQHxLYJ"
 
 def get_pastebin_text(pastebin_url):
     """Retrieves text from a Pastebin URL."""
@@ -38,6 +38,7 @@ def human_like_typing(text, wpm=5500):
         if char == '\n':
             pyautogui.press('enter')
             time.sleep(random.uniform(0.1, 0.3) / wpm)
+            pyautogui.press('tab')
 
         else:
             pyautogui.write(char)
