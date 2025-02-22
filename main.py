@@ -2,49 +2,54 @@ import time
 import random
 import pyautogui
 import keyboard
+from dotenv import load_dotenv
+import os
+import requests
 
-def human_like_typing(text, wpm=110):
-    """Types text with human-like delays and pauses, stopping on numpad *."""
+load_dotenv()
+pastebin_api_key = os.getenv("PASTEBIN_API_KEY")
+pastebin_url = "https://pastebin.com/DTJXGTNy"
 
-    words = text.split()
+def get_pastebin_text(pastebin_url):
+    """Retrieves text from a Pastebin URL."""
+    try:
+        raw_url = pastebin_url.replace("pastebin.com/", "pastebin.com/raw/")
+        response = requests.get(raw_url)
+        response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
+        return response.text
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching Pastebin: {e}")
+        return None
 
-    for i, word in enumerate(words):
-        for char in word:
-            if keyboard.is_pressed('*'):
-                print("\nTyping stopped by user.")
-                return  # Exit the function
+def human_like_typing(text, wpm=5500):
+    """Types text with human-like delays and pauses, handling tabs and spacing."""
 
-            delay = random.uniform(0.045, 0.06) / wpm
-            time.sleep(delay)
+    if text is None:
+        return
+
+    for char in text:
+        if keyboard.is_pressed('*'):
+            print("\nTyping stopped by user.")
+            return
+
+        delay = random.uniform(0.045, 0.06) / wpm
+        time.sleep(delay)
+
+        if char == '\n':
+            pyautogui.press('enter')
+            time.sleep(random.uniform(0.1, 0.3) / wpm)
+
+        else:
             pyautogui.write(char)
 
-        pyautogui.write(" ")
-        word_pause = random.uniform(0.1, 0.3) / wpm
-        time.sleep(word_pause)
-
-        if random.random() < 0.05:
-            sentence_pause = random.uniform(0.5, 2)
-            time.sleep(sentence_pause)
-
-        if word.endswith((".", "?", "!")):
+        if char == " " :
+            word_pause = random.uniform(0.1, 0.3) / wpm
+            time.sleep(word_pause)
+        if char in (".", "?", "!"):
             sentence_pause = random.uniform(0.5, 2) / wpm
             time.sleep(sentence_pause)
 
     print("\nTyping complete.")
 
-# Example usage
-text = """This is a very long text that I am writing to simulate human-like typing.
-It should have various pauses, both short and long, to mimic the way a person
-would type.  Sometimes, there will be long thinking breaks, where the person
-contemplates what to write next. This is important to make it seem realistic.
-We also want to have realistic word per minute.  We will try to make it around 110.
-Sometimes, the user will make mistakes and have to go back and correct them.
-But we are not going to simulate that in this example.  We will just keep typing.
-This is a good way to test the function and see if it works as expected.
-It should be fun to watch it type out the text.  We will see how it goes.
-Hopefully, it will be convincing.  We can even add some random capitalization
-or spelling errors, but that might be a bit too much for this example.  We can save
-that for a more advanced version of the script.  For now, this should be enough.
-"""
-
+text = get_pastebin_text(pastebin_url)
 human_like_typing(text)
